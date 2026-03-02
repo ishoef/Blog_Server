@@ -15,6 +15,9 @@ router.get(
   authMiddleware(UserRole.ADMIN, UserRole.USER),
   postController.getMyPosts,
 );
+
+router.get("/states", authMiddleware(UserRole.ADMIN), postController.getStates);
+
 router.get("/:postId", postController.getPostById);
 router.patch(
   "/:postId",

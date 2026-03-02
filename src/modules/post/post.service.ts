@@ -5,6 +5,7 @@ import {
 } from "../../../generated/prisma/client";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
+import { UserRole } from "../../middleware/authMiddleware";
 
 // Create a Post
 const createPost = async (
@@ -305,6 +306,52 @@ const deletePost = async (
   return result;
 };
 
+// get states
+const getStates = async () => {
+  // postCount, publisedPosts, draftPosts, totlacomments, totalviews
+  return await prisma.$transaction(async (tx) => {
+    const [
+      totalUser,
+      adminCount,
+      userCount,
+      totalPosts,
+      publisedPosts,
+      draftPosts,
+      archivedPosts,
+      totlacomments,
+      approvedComments,
+      rejectComments,
+      totalviews,
+    ] = await Promise.all([
+      await tx.user.count(),
+      await tx.user.count({ where: { role: UserRole.ADMIN } }),
+      await tx.user.count({ where: { role: UserRole.USER } }),
+      await tx.post.count(),
+      await tx.post.count({ where: { status: PostStatus.PUBLISHED } }),
+      await tx.post.count({ where: { status: PostStatus.DRAFT } }),
+      await tx.post.count({ where: { status: PostStatus.ARCHIVED } }),
+      await tx.comment.count(),
+      await tx.comment.count({ where: { status: CommentStatus.APPROVED } }),
+      await tx.comment.count({ where: { status: CommentStatus.REJECT } }),
+      await tx.post.aggregate({ _sum: { views: true } }),
+    ]);
+
+    return {
+      totalUser,
+      adminCount,
+      userCount,
+      totalPosts,
+      publisedPosts,
+      draftPosts,
+      archivedPosts,
+      totlacomments,
+      approvedComments,
+      rejectComments,
+      totalviews: totalviews._sum.views,
+    };
+  });
+};
+
 export const postService = {
   createPost,
   getAllPost,
@@ -312,4 +359,5 @@ export const postService = {
   getMyPosts,
   updateMyPost,
   deletePost,
+  getStates,
 };

@@ -169,6 +169,19 @@ const deletePost = async (req: Request, res: Response) => {
   }
 };
 
+// GEt all States
+const getStates = async (req: Request, res: Response) => {
+  try {
+    const result = await postService.getStates();
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(400).json({
+      success: false,
+      message: "States Fetched Failed",
+    });
+  }
+};
+
 export const postController = {
   createPost,
   getAllPost,
@@ -176,4 +189,5 @@ export const postController = {
   getMyPosts,
   updateMyPost,
   deletePost,
+  getStates,
 };
