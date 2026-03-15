@@ -9,7 +9,7 @@ import { UserRole } from "../../middleware/authMiddleware";
 
 // Create a Post
 const createPost = async (
-  data: Omit<Post, "id" | "createdAt" | "UpdatedAt" | "authorId">,
+  data: Omit<Post, "id" | "createdAt" | "updatedAt" | "authorId">,
   userId: string,
 ) => {
   const result = await prisma.post.create({
